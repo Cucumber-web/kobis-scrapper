@@ -12,12 +12,12 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 public class KobisScrapper {
-    private Map<LocalDate, BoxOfficeData[]> boxOfficeData;
+    private final Map<LocalDate, BoxOfficeData[]> boxOfficeData;
 
-    public class BoxOfficeData{
-        private int rank;
-        private String title;
-        private int code;
+    public static class BoxOfficeData{
+        private final int rank;
+        private final String title;
+        private final int code;
 
         public BoxOfficeData(int rank, String title, int code) {
             this.rank = rank;
@@ -99,20 +99,34 @@ public class KobisScrapper {
         STILL_CUT
     }
 
-    public String[] getImageUrlsByCode(int code, ImageType imageType) throws IOException {
+    private Document loadPopup(int code) throws IOException {
         String url = "https://www.kobis.or.kr/kobis/business/mast/mvie/searchMovieDtl.do";
-        Document document = Jsoup.connect(url)
+        return Jsoup.connect(url)
                 .data("code", code + "")
                 .data("sType", "")
                 .data("titleYN", "Y")
                 .data("etcParam", "")
                 .data("isOuterReq", "false")
                 .post();
+    }
+
+    public String[] getImageUrlsByCode(int code, ImageType imageType) throws IOException {
+        Document document = loadPopup(code);
         Elements info2 = document.select("div.info2");
         return info2.get(imageType == ImageType.POSTER ? 0 : 1).select("img")
                 .stream()
                 .map(img -> img.attr("src"))
                 .map(src -> "https://www.kobis.or.kr" + src.replaceFirst("thumb_x\\d\\d\\d", "thumb_x640"))
                 .toArray(String[]::new);
+    }
+
+    public String getSynopsisByCode(int code) throws IOException {
+        Document document = loadPopup(code);
+        Elements info2s = document.select(".info2");
+        return info2s.stream()
+                .filter(info2 -> info2.selectFirst("strong").text().trim().equals("시놉시스"))
+                .map(info2 -> info2.selectFirst(".desc_info").text().trim())
+                .findFirst()
+                .get();
     }
 }
