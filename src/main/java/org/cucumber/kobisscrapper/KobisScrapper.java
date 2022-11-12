@@ -12,6 +12,10 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 public class KobisScrapper {
+    public class NotScrappedDateException extends Exception {
+
+    }
+
     private final Map<LocalDate, BoxOfficeData[]> boxOfficeData;
 
     public static class BoxOfficeData{
@@ -90,7 +94,8 @@ public class KobisScrapper {
         }
     }
 
-    public BoxOfficeData[] getBoxOfficesByDate(LocalDate date) {
+    public BoxOfficeData[] getBoxOfficesByDate(LocalDate date) throws NotScrappedDateException {
+        if (!boxOfficeData.containsKey(date)) throw new NotScrappedDateException();
         return boxOfficeData.get(date);
     }
 
