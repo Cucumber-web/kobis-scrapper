@@ -115,13 +115,16 @@ public class KobisScrapper {
                 .post();
     }
 
-    public String[] getImageUrlsByCode(int code, ImageType imageType) throws IOException {
+    public String[] getImageUrlsByCode(int code, ImageType imageType, boolean thumbnail) throws IOException {
         Document document = loadPopup(code);
         Elements info2 = document.select("div.info2");
         return info2.get(imageType == ImageType.POSTER ? 0 : 1).select("img")
                 .stream()
                 .map(img -> img.attr("src"))
-                .map(src -> "https://www.kobis.or.kr" + src.replaceFirst("thumb_x\\d\\d\\d", "thumb_x640"))
+                .map(src -> "https://www.kobis.or.kr" +
+                        (thumbnail ?
+                                src.replaceFirst("thumb_x\\d\\d\\d", "thumb_x640") :
+                                src.replaceFirst("thumb_x\\d\\d\\d/thn_", "")))
                 .toArray(String[]::new);
     }
 
