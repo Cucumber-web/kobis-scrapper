@@ -77,7 +77,7 @@ public class KobisScrapper {
                 }).toArray(BoxOfficeData[][]::new);
 
 
-        var dates = document.select(".rst_sch > div > h4")
+        LocalDate[] dates = document.select(".rst_sch > div > h4")
                 .stream()
                 .map(h4 -> h4.text().trim())
                 .map(text -> text.substring(0, text.length() - 3))
