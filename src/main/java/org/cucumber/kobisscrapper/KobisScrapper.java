@@ -1,5 +1,7 @@
 package org.cucumber.kobisscrapper;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -12,6 +14,8 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 public class KobisScrapper {
+    private static final Gson gson = new Gson();
+
     public static class NotScrappedDateException extends Exception {
 
     }
@@ -61,6 +65,7 @@ public class KobisScrapper {
                     '}';
         }
     }
+
 
     public KobisScrapper(LocalDate start, LocalDate end) throws IOException {
         String url = "https://www.kobis.or.kr/kobis/business/stat/boxs/findDailyBoxOfficeList.do";
@@ -161,5 +166,48 @@ public class KobisScrapper {
                 .map(info2 -> info2.selectFirst(".desc_info").text().trim())
                 .findFirst()
                 .get();
+    }
+
+    public static List<Actor> getActorList(int code) throws IOException {
+
+        String url = "https://www.kobis.or.kr/kobis/business/mast/mvie/searchMovActorLists.do";
+        String json = Jsoup.connect(url)
+                .header("Accept", "application/json, text/javascript, */*; q=0.01")
+                .header("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+                .data("movieCd", code + "").ignoreContentType(true).post().body().text();
+        return gson.fromJson(json, new TypeToken<List<Actor>>() {
+        }.getType());
+    }
+
+    public class Actor {
+        private String peopleNm;
+
+        private String cast;
+
+        private String actorGb;
+
+
+        public String getActorName() {
+            return peopleNm;
+        }
+
+        public String getCharacterName() {
+            return cast;
+        }
+
+        public String getType() {
+            switch (Integer.parseInt(actorGb)) {
+                case 1:
+                    return "주연";
+                case 2:
+                    return "조연";
+                case 3:
+                    return "특별출연";
+                case 5:
+                    return "단역";
+                default:
+                    return null;
+            }
+        }
     }
 }
