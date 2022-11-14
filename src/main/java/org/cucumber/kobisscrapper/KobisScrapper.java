@@ -178,7 +178,6 @@ public class KobisScrapper {
     }
 
     public static List<Actor> getActorList(int code) throws IOException {
-
         String url = "https://www.kobis.or.kr/kobis/business/mast/mvie/searchMovActorLists.do";
         String json = Jsoup.connect(url)
                 .header("Accept", "application/json, text/javascript, */*; q=0.01")
