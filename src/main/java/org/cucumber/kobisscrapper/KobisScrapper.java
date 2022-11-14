@@ -19,8 +19,19 @@ public class KobisScrapper {
     private final Map<LocalDate, BoxOfficeData[]> boxOfficeData;
 
     public static class BoxOfficeData {
+        /**
+         * 박스오피스 순위
+         */
         private final int rank;
+
+        /**
+         * 영화 제목
+         */
         private final String title;
+
+        /**
+         * 영화정보통합관리 표준코드(FIMS코드)
+         */
         private final int code;
 
         public BoxOfficeData(int rank, String title, int code) {
@@ -95,6 +106,13 @@ public class KobisScrapper {
         }
     }
 
+    /**
+     * 입력된 날짜에 해당하는 박스오피스 데이터를 가져오는 함수
+     *
+     * @param date 박스오피스 순위를 매긴 기준일
+     * @return 박스오피스 랭킹 및 코드를 담은 객체들의 배열을 반환
+     * @throws NotScrappedDateException 입력된 날짜가 긁어오지 않은 날짜에 해당하는 경우 예외를 발생
+     */
     public BoxOfficeData[] getBoxOfficesByDate(LocalDate date) throws NotScrappedDateException {
         if (!boxOfficeData.containsKey(date)) throw new NotScrappedDateException();
         return boxOfficeData.get(date);
