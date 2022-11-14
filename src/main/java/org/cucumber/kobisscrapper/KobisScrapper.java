@@ -59,6 +59,10 @@ public class KobisScrapper {
             return code;
         }
 
+        public LocalDate getDate() {
+            return date;
+        }
+
         @Override
         public String toString() {
             return "BoxOfficeData{" +
