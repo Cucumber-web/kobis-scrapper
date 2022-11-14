@@ -12,13 +12,13 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 public class KobisScrapper {
-    public class NotScrappedDateException extends Exception {
+    public static class NotScrappedDateException extends Exception {
 
     }
 
     private final Map<LocalDate, BoxOfficeData[]> boxOfficeData;
 
-    public static class BoxOfficeData{
+    public static class BoxOfficeData {
         private final int rank;
         private final String title;
         private final int code;
@@ -50,6 +50,7 @@ public class KobisScrapper {
                     '}';
         }
     }
+
     public KobisScrapper(LocalDate start, LocalDate end) throws IOException {
         String url = "https://www.kobis.or.kr/kobis/business/stat/boxs/findDailyBoxOfficeList.do";
         Document document = Jsoup.connect(url)
@@ -104,7 +105,7 @@ public class KobisScrapper {
         STILL_CUT
     }
 
-    private Document loadPopup(int code) throws IOException {
+    private static Document loadPopup(int code) throws IOException {
         String url = "https://www.kobis.or.kr/kobis/business/mast/mvie/searchMovieDtl.do";
         return Jsoup.connect(url)
                 .data("code", code + "")
@@ -115,7 +116,7 @@ public class KobisScrapper {
                 .post();
     }
 
-    public String[] getImageUrlsByCode(int code, ImageType imageType, boolean thumbnail) throws IOException {
+    public static String[] getImageUrlsByCode(int code, ImageType imageType, boolean thumbnail) throws IOException {
         Document document = loadPopup(code);
         Elements info2 = document.select("div.info2");
         return info2.get(imageType == ImageType.POSTER ? 0 : 1).select("img")
@@ -128,7 +129,13 @@ public class KobisScrapper {
                 .toArray(String[]::new);
     }
 
-    public String getSynopsisByCode(int code) throws IOException {
+    public static String getMainPosterByCode(int code) throws IOException {
+        return "https://www.kobis.or.kr" + Objects.requireNonNull(
+                loadPopup(code).selectFirst("a.fl.thumb")
+        ).attr("href");
+    }
+
+    public static String getSynopsisByCode(int code) throws IOException {
         Document document = loadPopup(code);
         Elements info2s = document.select(".info2");
         return info2s.stream()

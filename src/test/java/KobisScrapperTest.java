@@ -10,6 +10,12 @@ public class KobisScrapperTest {
     void getSynopsisByCode() throws IOException {
         var scrapper = new KobisScrapper(LocalDate.of(2022, 11, 9),
                 LocalDate.of(2022, 11, 11));
-        Assertions.assertTrue(scrapper.getSynopsisByCode(20226254).startsWith("“와칸다를 지켜라!” 거대한 두 세계의 충돌,"));
+        Assertions.assertTrue(KobisScrapper.getSynopsisByCode(20226254).startsWith("“와칸다를 지켜라!” 거대한 두 세계의 충돌,"));
+    }
+
+    @Test
+    void getMainPosterByCode() throws IOException {
+        String url = "https://www.kobis.or.kr/common/mast/movie/2022/11/5fc3cbc27da64a1983c9abc90599d185.jpg";
+        Assertions.assertEquals(KobisScrapper.getMainPosterByCode(20226254), url);
     }
 }
