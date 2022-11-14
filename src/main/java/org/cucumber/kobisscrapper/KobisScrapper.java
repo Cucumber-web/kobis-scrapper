@@ -128,15 +128,24 @@ public class KobisScrapper {
         STILL_CUT
     }
 
+    private static final HashMap<Integer, Document> popupCache = new HashMap<>();
+
     private static Document loadPopup(int code) throws IOException {
+        if (popupCache.containsKey(code)) return popupCache.get(code);
         String url = "https://www.kobis.or.kr/kobis/business/mast/mvie/searchMovieDtl.do";
-        return Jsoup.connect(url)
+        Document document = Jsoup.connect(url)
                 .data("code", code + "")
                 .data("sType", "")
                 .data("titleYN", "Y")
                 .data("etcParam", "")
                 .data("isOuterReq", "false")
                 .post();
+        popupCache.put(code, document);
+        return document;
+    }
+
+    public static void clearPopupCache() {
+        popupCache.clear();
     }
 
     public static String[] getImageUrlsByCode(int code, ImageType imageType, boolean thumbnail) throws IOException {
