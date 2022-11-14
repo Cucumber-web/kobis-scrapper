@@ -38,10 +38,13 @@ public class KobisScrapper {
          */
         private final int code;
 
-        public BoxOfficeData(int rank, String title, int code) {
+        private final LocalDate date;
+
+        public BoxOfficeData(int rank, String title, int code, LocalDate date) {
             this.rank = rank;
             this.title = title;
             this.code = code;
+            this.date = date;
         }
 
         public int getRank() {
@@ -62,6 +65,7 @@ public class KobisScrapper {
                     "rank=" + rank +
                     ", title='" + title + '\'' +
                     ", code=" + code +
+                    ", date=" + date +
                     '}';
         }
     }
@@ -93,7 +97,8 @@ public class KobisScrapper {
                                         .split(Pattern.quote("');"))[0]);
                         int rank = Integer.parseInt(cols.get(0).text());
                         String title = a.attr("title");
-                        return new BoxOfficeData(rank, title, code);
+                        LocalDate date = LocalDate.parse(cols.get(2).text());
+                        return new BoxOfficeData(rank, title, code, date);
                     }).toArray(BoxOfficeData[]::new);
                 }).toArray(BoxOfficeData[][]::new);
 
