@@ -20,6 +20,76 @@ public class KobisScrapper {
 
     }
 
+    public static class MovieCode {
+        private String title;
+        private int code;
+
+        public MovieCode(String title, int code) {
+            this.title = title;
+            this.code = code;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            MovieCode movieCode = (MovieCode) o;
+            return title.equals(movieCode.title);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(title);
+        }
+
+        @Override
+        public String toString() {
+            return "MovieCode{" +
+                    "title='" + title + '\'' +
+                    ", code=" + code +
+                    '}';
+        }
+    }
+
+    public static MovieCode[] searchUserMovCdList(int startYear, int endYear, int page) throws IOException {
+        String url = "https://www.kobis.or.kr/kobis/business/mast/mvie/searchUserMovCdList.do";
+        Document document = Jsoup.connect(url)
+                .data("curPage", page + "")
+                .data("searchType", "")
+                .data("point", "")
+                .data("orderBy", "")
+                .data("auth", "")
+                .data("ordering", "updDttmOrder")
+                .data("searchOpen", "")
+                .data("movieNm", "")
+                .data("movieCd", "")
+                .data("directorNm", "")
+                .data("prdtStartYear", "")
+                .data("prdtEndYear", "")
+                .data("openStartDt", startYear + "")
+                .data("openEndDt", endYear + "")
+                .data("repNationCd", "")
+                .data("showTypeStr", "")
+                .post();
+        Elements rows = document.select(".tbl3 > tbody > tr");
+        return rows.stream()
+                .filter(row -> row.select("td").size() == 8)
+                .map(row -> {
+                    Elements tds = row.select("td");
+                    String title = tds.first().attr("title");
+                    int code = Integer.parseInt(tds.last().text());
+                    return new KobisScrapper.MovieCode(title, code);
+                }).toArray(MovieCode[]::new);
+    }
+
     private final Map<LocalDate, BoxOfficeData[]> boxOfficeData;
 
     public static class BoxOfficeData {
@@ -196,7 +266,7 @@ public class KobisScrapper {
         }.getType());
     }
 
-    public class Actor {
+    public static class Actor {
         private String peopleNm;
 
         private String cast;
