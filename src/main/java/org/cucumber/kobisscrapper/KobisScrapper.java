@@ -59,35 +59,39 @@ public class KobisScrapper {
         }
     }
 
-    public static MovieCode[] searchUserMovCdList(int startYear, int endYear, int page) throws IOException {
-        String url = "https://www.kobis.or.kr/kobis/business/mast/mvie/searchUserMovCdList.do";
-        Document document = Jsoup.connect(url)
-                .data("curPage", page + "")
-                .data("searchType", "")
-                .data("point", "")
-                .data("orderBy", "")
-                .data("auth", "")
-                .data("ordering", "updDttmOrder")
-                .data("searchOpen", "")
-                .data("movieNm", "")
-                .data("movieCd", "")
-                .data("directorNm", "")
-                .data("prdtStartYear", "")
-                .data("prdtEndYear", "")
-                .data("openStartDt", startYear + "")
-                .data("openEndDt", endYear + "")
-                .data("repNationCd", "")
-                .data("showTypeStr", "")
-                .post();
-        Elements rows = document.select(".tbl3 > tbody > tr");
-        return rows.stream()
-                .filter(row -> row.select("td").size() == 8)
-                .map(row -> {
-                    Elements tds = row.select("td");
-                    String title = tds.first().attr("title");
-                    int code = Integer.parseInt(tds.last().text());
-                    return new KobisScrapper.MovieCode(title, code);
-                }).toArray(MovieCode[]::new);
+    public static MovieCode[] searchUserMovCdList(int startYear, int endYear, int page) {
+        try {
+            String url = "https://www.kobis.or.kr/kobis/business/mast/mvie/searchUserMovCdList.do";
+            Document document = Jsoup.connect(url)
+                    .data("curPage", page + "")
+                    .data("searchType", "")
+                    .data("point", "")
+                    .data("orderBy", "")
+                    .data("auth", "")
+                    .data("ordering", "updDttmOrder")
+                    .data("searchOpen", "")
+                    .data("movieNm", "")
+                    .data("movieCd", "")
+                    .data("directorNm", "")
+                    .data("prdtStartYear", "")
+                    .data("prdtEndYear", "")
+                    .data("openStartDt", startYear + "")
+                    .data("openEndDt", endYear + "")
+                    .data("repNationCd", "")
+                    .data("showTypeStr", "")
+                    .post();
+            Elements rows = document.select(".tbl3 > tbody > tr");
+            return rows.stream()
+                    .filter(row -> row.select("td").size() == 8)
+                    .map(row -> {
+                        Elements tds = row.select("td");
+                        String title = tds.first().attr("title");
+                        int code = Integer.parseInt(tds.last().text());
+                        return new KobisScrapper.MovieCode(title, code);
+                    }).toArray(MovieCode[]::new);
+        } catch (IOException exception) {
+            return new MovieCode[0];
+        }
     }
 
     private final Map<LocalDate, BoxOfficeData[]> boxOfficeData;
